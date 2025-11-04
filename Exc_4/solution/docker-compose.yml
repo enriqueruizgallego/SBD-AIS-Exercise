@@ -1,0 +1,31 @@
+# todo
+services:
+  postgres:
+    image: postgres:18
+    container_name: orders-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: order
+      POSTGRES_USER: docker
+      POSTGRES_PASSWORD: docker
+    volumes:
+      - pg18:/var/lib/postgresql/18/docker
+
+
+  orderservice:
+    build: .
+    container_name: orderservice
+    depends_on:
+      - postgres
+    ports:
+      - "3000:3000"
+    environment:
+      POSTGRES_DB: order
+      POSTGRES_USER: docker
+      POSTGRES_PASSWORD: docker
+      POSTGRES_TCP_PORT: "5432"
+      DB_HOST: postgres
+
+volumes:
+  pg18:
