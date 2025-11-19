@@ -15,11 +15,8 @@ const (
 |-----------------|----------|--------|
 | %s | %d        | %d      |
 
-<<<<<<< HEAD
+
 Thanks for drinking with us!
-=======
-Thanks for drinking with us! 
->>>>>>> a04fbb2 (Adding solution assignment 6)
 `
 )
 

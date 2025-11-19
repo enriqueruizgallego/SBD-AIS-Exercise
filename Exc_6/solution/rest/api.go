@@ -168,10 +168,7 @@ func PostOrder(db *repository.DatabaseHandler, s3 *minio.Client) http.HandlerFun
 			render.Status(r, http.StatusBadRequest)
 			render.JSON(w, r, "Unable to decode body")
 			return
-<<<<<<< HEAD
-=======
 
->>>>>>> a04fbb2 (Adding solution assignment 6)
 		}
 		// store to db
 		dbOrder, err := db.AddOrder(&order)
