@@ -116,25 +116,27 @@ func GetReceiptFile(db *repository.DatabaseHandler, s3 *minio.Client) http.Handl
 		// todo
 		// Get the file from s3 using s3.GetObject(), the bucket name is defined in storage.OrdersBucket
 		// dbOrder.Filename() can be used to get the filename.
+		obj, err := s3.GetObject(
+			r.Context(),
+			storage.OrdersBucket,
+			order.GetFilename(),
+			minio.GetObjectOptions{})
 		// handle any error!
-		obj, err := s3.GetObject(r.Context(), storage.OrdersBucket, order.GetFilename(), minio.GetObjectOptions{})
 		if err != nil {
 			slog.Error("Unable to load receipt from s3", slog.String("error", err.Error()))
-			// para este ejercicio, tratamos el error como "no encontrado"
 			render.Status(r, http.StatusNotFound)
 			render.JSON(w, r, "Receipt not found")
 			return
 		}
-		defer obj.Close()
+		defer obj.Close() //close the object reader after finishing
 
 		// serve file
 		// todo
 		// set the correct header on w http.ResponseWriter ("Content-Type" and "Content-Disposition")
-		// Use the correct filename for "Content-Disposition" (https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Disposition)
-		// io.Copy can be used to write the result of s3.GetObject() to w http.ResponseWriter
 		w.Header().Set("Content-Type", "text/markdown")
+		// Use the correct filename for "Content-Disposition" (https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Disposition)
 		w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, order.GetFilename()))
-
+		// io.Copy can be used to write the result of s3.GetObject() to w http.ResponseWriter
 		if _, err := io.Copy(w, obj); err != nil {
 			slog.Error("Unable to write receipt to response", slog.String("error", err.Error()))
 		}
