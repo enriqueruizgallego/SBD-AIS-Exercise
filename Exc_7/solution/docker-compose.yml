@@ -1,7 +1,7 @@
 networks:
   web:
-    name: web
-    driver: overlay
+    name: web  
+    driver: overlay  #containers in differents machines can see each other by name
     attachable: true
   intercom:
     name: intercom
@@ -12,7 +12,8 @@ volumes:
   order_pg_vol:
   minio_vol:
 
-secrets:
+#Remove usernames and passwords from environment variables and put them into Docker Secrets
+secrets:  
   postgres_user:
     file: docker/postgres_user_secret
   postgres_password:
@@ -34,7 +35,7 @@ services:
       - --entrypoints.web.address=:80
       - --log.level=INFO
     ports:
-      - target: 80
+      - target: 80  #expose the port 80 of the Swarm cluster to the outside
         published: 80
         protocol: tcp
         mode: ingress
@@ -62,11 +63,11 @@ services:
       # should be available at http://localhost from every node
       mode: global # Replicates to EVERY node
       labels:
-         - "traefik.enable=true"
-         - "traefik.http.routers.frontend.rule=PathPrefix(`/`)" # Catch-all for root
-         - "traefik.http.routers.frontend.entrypoints=web"
+         - "traefik.enable=true"  #traefik has to manage it
+         - "traefik.http.routers.frontend.rule=PathPrefix(`/`)" # Catch-all for root  # all the routes /... go to frontend
+         - "traefik.http.routers.frontend.entrypoints=web"  #use the port 80 of traefik
          - "traefik.http.services.frontend.loadbalancer.server.port=80" # Internal container port
-
+         # traefic connects to the 80 port inside the frontend container
 
   orderservice:
     image: ghcr.io/ddibiasi/sbd-ais-exercise/orderservice:1.0
@@ -145,7 +146,7 @@ services:
     environment:
       # todo use secrets
       - MINIO_ROOT_USER_FILE=/run/secrets/s3_user
-      - MINIO_ROOT_PASSWORD_FILE=/run/secrets/s3_user
+      - MINIO_ROOT_PASSWORD_FILE=/run/secrets/s3_password
     networks:
       - intercom
     deploy:
